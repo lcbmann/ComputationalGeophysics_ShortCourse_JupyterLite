@@ -1,0 +1,68 @@
+name: Build and Deploy JupyterLite
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install micromamba
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          micromamba-version: "2.0.5-0"
+          environment-file: .github/build-environment.yml
+          cache-environment: true
+          init-shell: bash
+
+      - name: Build the JupyterLite site
+        shell: bash -el {0}
+        run: |
+          cp README.md content/README.md
+          jupyter lite build \
+            --contents content \
+            --output-dir dist \
+            --XeusAddon.environment_file=environment-jupyterlite.yml \
+            --XeusAddon.mount_jupyterlite_content=True
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -18,7 +18,26 @@ III. Sign up to the COURSERA course linked below (free!) and use the Jupyter Not
 
 [Coursea](https://www.coursera.org/learn/computers-waves-simulations) 
 
-IV. Install an anaconda environment on your computer and run the notebooks locally (preferred if you want to work with them later, modify them etc.)
+IV. Experimental JupyterLite pilot on GitHub Pages
+
+This repository now includes a minimal JupyterLite pilot that can run one notebook directly in the browser with no Binder server.
+
+The pilot is intentionally small:
+
+- one starter notebook in `content/00_jupyterlite_smoke_test.ipynb`
+- one lightweight browser environment in `environment-jupyterlite.yml`
+- one GitHub Pages workflow in `.github/workflows/deploy.yml`
+
+To enable it:
+
+1. Push the repository to GitHub.
+2. Open `Settings > Pages`.
+3. Set the source to `GitHub Actions`.
+4. Wait for the `Build and Deploy JupyterLite` workflow to finish.
+
+The detailed notes are in `JUPYTERLITE.md`.
+
+V. Install an anaconda environment on your computer and run the notebooks locally (preferred if you want to work with them later, modify them etc.)
 
 Download the entire repository. 
 
