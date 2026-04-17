@@ -42,9 +42,11 @@ jobs:
       - name: Build the JupyterLite site
         shell: bash -el {0}
         run: |
-          cp README.md content/README.md
           jupyter lite build \
             --contents content \
+            --contents Notebooks \
+            --contents Slides \
+            --contents share \
             --output-dir dist \
             --XeusAddon.environment_file=environment-jupyterlite.yml \
             --XeusAddon.mount_jupyterlite_content=True

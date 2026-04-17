@@ -1,19 +1,27 @@
 # JupyterLite Pilot
 
-This repository now includes a minimal JupyterLite pilot so the course can be tested in a fully browser-based setup without Binder or a dedicated notebook server.
+This repository now includes a JupyterLite deployment path so the course can be tested in a fully browser-based setup without Binder or a dedicated notebook server.
 
 ## What is included
 
 - A GitHub Pages workflow at `.github/workflows/deploy.yml`
 - A dedicated JupyterLite build environment at `.github/build-environment.yml`
 - A dedicated xeus-python runtime environment at `environment-jupyterlite.yml`
-- One very small browser-safe starter notebook in `content/00_jupyterlite_smoke_test.ipynb`
+- A browser-safe starter notebook in `content/00_jupyterlite_smoke_test.ipynb`
+- The full `Notebooks/` tree packaged into the Lite build
+- The `Slides/` directory packaged into the Lite build
+- A `share/images/` directory with placeholder assets for notebook headers
 
 ## Why this starts small
 
 Professor Igel's suggestion was the right one: start with one notebook that has almost no dependencies, confirm the build and execution model, then add real course notebooks incrementally.
 
-The current starter notebook uses only:
+The current deployment now does both:
+
+- a very small smoke-test notebook for sanity checking
+- the full course notebook tree for exploratory browser-based use
+
+The starter notebook uses only:
 
 - `xeus-python`
 - `numpy`
@@ -33,33 +41,46 @@ The site should then appear at:
 
 `https://heinerigel.github.io/ComputationalGeophysics_ShortCourse/`
 
-Inside the site, open:
+The JupyterLab app is at:
+
+`https://heinerigel.github.io/ComputationalGeophysics_ShortCourse/lab/index.html`
+
+Inside the site, first open:
 
 `00_jupyterlite_smoke_test.ipynb`
 
-## Recommended next notebook to port
+## Current packaging strategy
 
-The cleanest next candidate from the existing course material is:
+The full repo is now packaged into the Lite site with these additions:
+
+- all notebooks copied into the site
+- helper Python files copied alongside their notebooks
+- stale notebook outputs stripped to reduce legacy browser-specific JS and site size
+- JupyterLite helper cells inserted into notebooks that import adjacent local modules
+- placeholder image assets added where the repository referenced files that did not exist
+
+## Recommended first real notebook to test
+
+The cleanest browser test from the existing course material remains:
 
 `Notebooks/02 FiniteDifferenceMethod/01 Derivatives/fd_first_derivative.ipynb`
 
 Reasons:
 
-- it appears to depend only on `numpy` and `matplotlib`
+- it depends only on `numpy` and `matplotlib`
 - it is directly relevant to the course
 - it is much lighter than the animation-heavy notebooks
 
 ## Main blockers found in the current notebook set
 
-- Many notebooks reference banner assets such as `title01.png` or `../../share/images/...`, but those image files are not present in this repository.
-- Several notebooks rely on adjacent helper modules such as `animation.py`, `progress_bar.py`, `ricker.py`, `gll.py`, and related local imports.
-- Some notebooks generate animations, which need separate browser testing in JupyterLite.
+- Some notebooks generate large HTML/JS animations, which remain heavier in the browser than in a local Jupyter setup.
+- Numerical notebooks with local helper imports are now packaged for Lite, but should still be tested individually because the original repo was not written for browser-only execution.
 
 ## Practical migration order
 
 1. Confirm the smoke-test notebook runs on GitHub Pages.
-2. Port `fd_first_derivative.ipynb` into `content/` after removing or replacing the missing title image.
-3. Test local imports with one notebook that uses a nearby helper module.
-4. Only after that, attempt the animation-heavy notebooks.
+2. Run `fd_first_derivative.ipynb`.
+3. Run one notebook with local helper imports.
+4. Only after that, attempt the largest animation-heavy notebooks.
 
 This keeps the risk low and makes it obvious where JupyterLite is already sufficient and where the notebooks still need cleanup.
