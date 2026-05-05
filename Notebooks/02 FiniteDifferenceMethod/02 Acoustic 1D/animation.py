@@ -7,6 +7,17 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 
+def _func_animation(fig, update, frame_count, fargs):
+    return animation.FuncAnimation(
+        fig,
+        update,
+        frame_count,
+        fargs=fargs,
+        interval=50,
+        cache_frame_data=False,
+    )
+
+
 def create_animation_gaussian_analytical(local_dict):
     fig, ax1 = local_dict['fig'], local_dict['ax1']
     leg1, leg2, leg3, leg4, up1, up21, up22 = local_dict['leg1'], local_dict['leg2'], local_dict['leg3'], local_dict['leg4'], local_dict['up1'], local_dict['up21'], local_dict['up22']
@@ -47,7 +58,7 @@ def create_animation_gaussian_analytical(local_dict):
 
         return leg1, leg2, leg3, leg4, up1, up21, up22
 
-    return animation.FuncAnimation(fig, update, math.ceil(nt/idisp), fargs=(leg1, leg2, leg3, leg4, up1, up21, up22), interval=50)
+    return _func_animation(fig, update, math.ceil(nt/idisp), (leg1, leg2, leg3, leg4, up1, up21, up22))
     
 
 def create_animation_gaussian(local_dict):
@@ -85,4 +96,4 @@ def create_animation_gaussian(local_dict):
 
         return leg, up
 
-    return animation.FuncAnimation(fig, update, math.ceil(nt/idisp), fargs=(leg1, up31), interval=50)
+    return _func_animation(fig, update, math.ceil(nt/idisp), (leg1, up31))

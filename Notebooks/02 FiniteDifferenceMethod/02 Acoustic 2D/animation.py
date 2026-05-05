@@ -6,6 +6,18 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+
+def _func_animation(fig, update, frame_count, fargs):
+    return animation.FuncAnimation(
+        fig,
+        update,
+        frame_count,
+        fargs=fargs,
+        interval=50,
+        cache_frame_data=False,
+    )
+
+
 def create_animation_staggered(local_dict):
     fig = local_dict['fig']
     ax1 = local_dict['ax1']
@@ -75,7 +87,7 @@ def create_animation_staggered(local_dict):
         
         return l1, l2
 
-    return animation.FuncAnimation(fig, update, math.ceil(nt/idisp), fargs=(line1, line2), interval=50)
+    return _func_animation(fig, update, math.ceil(nt/idisp), (line1, line2))
     
 def create_animation_optimal_operator(local_dict):
     fig = local_dict['fig']
@@ -84,6 +96,7 @@ def create_animation_optimal_operator(local_dict):
     up32 = local_dict['up32']
     up33 = local_dict['up33']
     up34 = local_dict['up34']
+    legend = ax.get_legend()
 
     idisp = local_dict['idisp']
     nt = local_dict['nt']
@@ -96,6 +109,8 @@ def create_animation_optimal_operator(local_dict):
     animation_progress_handler = ProgressBarHandler(math.ceil(nt/idisp), "Creating animation...", remain_after_finish=False)
 
     def update(n, up31, up32, up33, up34):
+        nonlocal legend
+
         it = n * idisp
         p = p_results[n]
         mp = mp_results[n]
@@ -113,17 +128,23 @@ def create_animation_optimal_operator(local_dict):
         error2 = np.sum((np.abs(mp - ap))) / np.sum(np.abs(ap)) * 100
         error3 = np.sum((np.abs(op - ap))) / np.sum(np.abs(ap)) * 100
 
-        ax.legend((up31, up32, up33, up34),
-            ('3 point FD: %g %%' % error1,
+        labels = (
+            '3 point FD: %g %%' % error1,
             '5 point FD: %g %%' % error2,
             'optimal FD: %g %%' % error3,
-            'analytical'), loc='lower right', fontsize=10, numpoints=1)
+            'analytical',
+        )
+        if legend is None:
+            legend = ax.legend((up31, up32, up33, up34), labels, loc='lower right', fontsize=10, numpoints=1)
+        else:
+            for text, label in zip(legend.get_texts(), labels):
+                text.set_text(label)
         
         animation_progress_handler(n)
         
         return up31, up32, up33, up34
 
-    return animation.FuncAnimation(fig, update, math.ceil(nt/idisp), fargs=(up31, up32, up33, up34), interval=50)
+    return _func_animation(fig, update, math.ceil(nt/idisp), (up31, up32, up33, up34))
 
 
 def create_animation_heterogeneous(local_dict):
@@ -148,7 +169,7 @@ def create_animation_heterogeneous(local_dict):
         
         return im_wave
 
-    return animation.FuncAnimation(fig, update, math.ceil(nt/idisp), fargs=(im_wave, ), interval=50)
+    return _func_animation(fig, update, math.ceil(nt/idisp), (im_wave, ))
 
 
 def create_animation_homogeneous(local_dict):
@@ -156,6 +177,7 @@ def create_animation_homogeneous(local_dict):
     ax3 = local_dict['ax3']
     up41 = local_dict['up41']
     up42 = local_dict['up42']
+    im3 = local_dict['im3']
     
     lim = local_dict['lim']
     time = local_dict['time']
@@ -175,13 +197,14 @@ def create_animation_homogeneous(local_dict):
         up42.set_data([time[it]], [seis_results[n][it]])
         
         ax3.set_title('Time Step (nt) = %d' % it)
-        ax3.imshow(p_results[n], vmin=-lim, vmax=+lim, interpolation="nearest", cmap=plt.cm.RdBu)
+        im3.set_data(p_results[n])
+        im3.set_clim(-lim, lim)
 
         animation_progress_handler(n)
         
-        return up41, up42
+        return im3, up41, up42
 
-    return animation.FuncAnimation(fig2, update, math.ceil(nt/idisp), fargs=(up41, up42), interval=50)
+    return _func_animation(fig2, update, math.ceil(nt/idisp), (up41, up42))
 
 
 def create_animation_advection_1d_euler_scheme(local_dict):
@@ -204,7 +227,7 @@ def create_animation_advection_1d_euler_scheme(local_dict):
                 
         return line,
     
-    return animation.FuncAnimation(fig1, update, math.ceil(nt/idisp), fargs=(line1, ), interval=50)
+    return _func_animation(fig1, update, math.ceil(nt/idisp), (line1, ))
 
 
 def create_animation_advection_1d_predictor_corrector_scheme(local_dict):
@@ -227,7 +250,7 @@ def create_animation_advection_1d_predictor_corrector_scheme(local_dict):
 
         return line,
     
-    return animation.FuncAnimation(fig2, update, math.ceil(nt/idisp), fargs=(line2, ), interval=50)
+    return _func_animation(fig2, update, math.ceil(nt/idisp), (line2, ))
 
 def create_animation_advection_1d_mccormack_scheme(local_dict):
     unew_results = local_dict['unew_results']
@@ -249,7 +272,7 @@ def create_animation_advection_1d_mccormack_scheme(local_dict):
         
         return line,
     
-    return animation.FuncAnimation(fig3, update, math.ceil(nt/idisp), fargs=(line3, ), interval=50)
+    return _func_animation(fig3, update, math.ceil(nt/idisp), (line3, ))
 
 def create_animation_advection_1d_lax_wendroff_scheme(local_dict):
     unew_results = local_dict['unew_results']
@@ -271,4 +294,4 @@ def create_animation_advection_1d_lax_wendroff_scheme(local_dict):
         
         return line,
     
-    return animation.FuncAnimation(fig4, update, math.ceil(nt/idisp), fargs=(line4, ), interval=50)
+    return _func_animation(fig4, update, math.ceil(nt/idisp), (line4, ))

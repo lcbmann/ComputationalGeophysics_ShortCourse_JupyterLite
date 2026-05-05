@@ -6,6 +6,18 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+
+def _func_animation(fig, update, frame_count, fargs):
+    return animation.FuncAnimation(
+        fig,
+        update,
+        frame_count,
+        fargs=fargs,
+        interval=50,
+        cache_frame_data=False,
+    )
+
+
 def create_animation_cheby_elastic(local_dict):
     fig = local_dict['fig']
     ax = local_dict['ax']
@@ -27,7 +39,7 @@ def create_animation_cheby_elastic(local_dict):
         
         return l, 
 
-    return animation.FuncAnimation(fig, update, math.ceil(nt/idisp), fargs=(line, ), interval=50)
+    return _func_animation(fig, update, math.ceil(nt/idisp), (line, ))
 
 
 def create_animation_fourier_acoustic_1d(local_dict):
@@ -73,7 +85,7 @@ def create_animation_fourier_acoustic_1d(local_dict):
         
         return l1, l2, l3
         
-    return animation.FuncAnimation(fig, update, math.ceil(nt/idisp), fargs=(l1, l2, l3), interval=50)
+    return _func_animation(fig, update, math.ceil(nt/idisp), (l1, l2, l3))
 
 
 def create_animation_fourier_acoustic_2d(local_dict):
@@ -96,15 +108,16 @@ def create_animation_fourier_acoustic_2d(local_dict):
     def update(n, l1, l2):
         it = n * idisp
 
-        ax1.imshow(sp_results[n], interpolation="bicubic", cmap=plt.cm.RdBu)
-        ax2.imshow(ap_results[n], interpolation="bicubic", cmap=plt.cm.RdBu)
+        sp = sp_results[n]
+        ap = ap_results[n]
 
-        # l1.set_data(sp_results[n])
-        # l2.set_data(ap_results[n])
+        l1.set_data(sp)
+        l2.set_data(ap)
+        l1.set_clim(np.min(sp), np.max(sp))
+        l2.set_clim(np.min(ap), np.max(ap))
 
         animation_progress_handler(n)
         
         return (l1, l2)
 
-    return animation.FuncAnimation(fig, update, math.ceil(nt/idisp), fargs=(l1, l2), interval=50)
-    
+    return _func_animation(fig, update, math.ceil(nt/idisp), (l1, l2))

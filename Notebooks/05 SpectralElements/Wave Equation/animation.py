@@ -6,6 +6,18 @@ import math
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
+
+def _func_animation(fig, update, frame_count, fargs):
+    return animation.FuncAnimation(
+        fig,
+        update,
+        frame_count,
+        fargs=fargs,
+        interval=50,
+        cache_frame_data=False,
+    )
+
+
 def create_animation_se_hetero_1d_solution(local_dict):
     fig1 = local_dict['fig1']
     ax1 = local_dict['ax1']
@@ -37,7 +49,7 @@ def create_animation_se_hetero_1d_solution(local_dict):
         
         return l1 
 
-    return animation.FuncAnimation(fig1, update, math.ceil(nt/idisp), fargs=(line1, ), interval=50)
+    return _func_animation(fig1, update, math.ceil(nt/idisp), (line1, ))
 
 def create_animation_se_homo_1d_solution(local_dict):
     fig1 = local_dict['fig1']
@@ -70,5 +82,4 @@ def create_animation_se_homo_1d_solution(local_dict):
         
         return l1 
 
-    return animation.FuncAnimation(fig1, update, math.ceil(nt/idisp), fargs=(line1, ), interval=50)
-
+    return _func_animation(fig1, update, math.ceil(nt/idisp), (line1, ))
